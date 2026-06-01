@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ recipe.title }} — NutriSync{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <a href="{% url 'dashboard' %}" class="nutri-btn-outline mb-4 d-inline-flex">
+    <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+  </a>
+
+  <div class="recipe-detail-card mt-3">
+    <div class="row g-0">
+
+      <!-- IMAGE -->
+      <div class="col-md-5">
+        <img src="{{ recipe.get_image }}"
+             alt="{{ recipe.title }}"
+             class="recipe-detail-img"
+             onerror="this.src='{% static 'images/recipes/default.jpg' %}'"/>
+      </div>
+
+      <!-- INFO -->
+      <div class="col-md-7 p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <h2 class="recipe-detail-title">{{ recipe.title }}</h2>
+          <button class="save-btn-detail {% if is_saved %}saved{% endif %}"
+                  data-id="{{ recipe.pk }}">
+            <i class="bi {% if is_saved %}bi-bookmark-heart-fill{% else %}bi-bookmark-heart{% endif %} fs-3"></i>
+          </button>
+        </div>
+
+        <p class="recipe-detail-desc mb-3">{{ recipe.description }}</p>
+
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          <span class="badge-tag"><i class="bi bi-cup-hot me-1"></i>{{ recipe.get_meal_type_display }}</span>
+          <span class="badge-tag {{ recipe.diet_type }}">
+            {% if recipe.diet_type == 'veg' %}🌿
+            {% elif recipe.diet_type == 'non_veg' %}🍗
+            {% elif recipe.diet_type == 'vegan' %}🌱
+            {% else %}🥚{% endif %}
+            {{ recipe.get_diet_type_display }}
+          </span>
+          <span class="badge-tag health">
+            <i class="bi bi-heart-pulse me-1"></i>{{ recipe.get_health_tags_display }}
+          </span>
+          {% if recipe.season != 'all' %}
+          <span class="badge-tag season">
+            {% if recipe.season == 'summer' %}☀️
+            {% elif recipe.season == 'winter' %}❄️
+            {% elif recipe.season == 'monsoon' %}🌧️
+            {% else %}🌸{% endif %}
+            {{ recipe.get_season_display }}
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="recipe-stats-grid mb-4">
+          <div class="stat-block">
+            <i class="bi bi-scissors"></i>
+            <div class="stat-val">{{ recipe.prep_time_min }} min</div>
+            <div class="stat-lbl">Prep</div>
+          </div>
+          <div class="stat-block">
+            <i class="bi bi-fire"></i>
+            <div class="stat-val">{{ recipe.cook_time_min }} min</div>
+            <div class="stat-lbl">Cook</div>
+          </div>
+          <div class="stat-block">
+            <i class="bi bi-stopwatch"></i>
+            <div class="stat-val">{{ recipe.total_time }} min</div>
+            <div class="stat-lbl">Total</div>
+          </div>
+          <div class="stat-block">
+            <i class="bi bi-people"></i>
+            <div class="stat-val">{{ recipe.servings }}</div>
+            <div class="stat-lbl">Servings</div>
+          </div>
+        </div>
+
+        <div class="nutrition-card">
+          <div class="nutrition-title">
+            <i class="bi bi-bar-chart-fill me-2"></i>Nutritional Value (per serving)
+          </div>
+          <div class="nutrition-grid">
+            <div class="nut-item">
+              <span class="nut-val">{{ recipe.calories }}</span>
+              <span class="nut-lbl">Calories</span>
+            </div>
+            <div class="nut-item">
+              <span class="nut-val">{{ recipe.protein_g }}g</span>
+              <span class="nut-lbl">Protein</span>
+            </div>
+            <div class="nut-item">
+              <span class="nut-val">{{ recipe.carbs_g }}g</span>
+              <span class="nut-lbl">Carbs</span>
+            </div>
+            <div class="nut-item">
+              <span class="nut-val">{{ recipe.fat_g }}g</span>
+              <span class="nut-lbl">Fat</span>
+            </div>
+            <div class="nut-item">
+              <span class="nut-val">{{ recipe.fiber_g }}g</span>
+              <span class="nut-lbl">Fiber</span>
+            </div>
+            <div class="nut-item">
+              <span class="nut-val">{{ recipe.sugar_g }}g</span>
+              <span class="nut-lbl">Sugar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INGREDIENTS, METHOD, WHO CAN EAT -->
+    <div class="row g-4 p-4" style="background:#faf8f3; border-top:1px solid #e8f5ee;">
+
+      <div class="col-md-4">
+        <div class="detail-block">
+          <div class="detail-block-title">
+            <i class="bi bi-list-check"></i> Ingredients
+          </div>
+          <ul class="ingredient-list">
+            {% for line in recipe.ingredients.splitlines %}
+              {% if line %}<li>{{ line }}</li>{% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-5">
+        <div class="detail-block">
+          <div class="detail-block-title">
+            <i class="bi bi-journal-text"></i> Preparation Method
+          </div>
+          <ol class="method-list">
+            {% for step in recipe.method.splitlines %}
+              {% if step %}<li>{{ step }}</li>{% endif %}
+            {% endfor %}
+          </ol>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="detail-block">
+          <div class="detail-block-title">
+            <i class="bi bi-person-check"></i> Who Can Eat This?
+          </div>
+
+          {% if recipe.suitable_for %}
+          <div class="consume-section suitable mb-2">
+            <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.3rem;">✅ Suitable For</div>
+            <p class="mb-0" style="font-size:0.82rem;line-height:1.6;">{{ recipe.suitable_for }}</p>
+          </div>
+          {% endif %}
+
+          {% if recipe.avoid_for %}
+          <div class="consume-section avoid">
+            <div style="font-weight:700;font-size:0.85rem;margin-bottom:0.3rem;">⚠️ Avoid If You Have</div>
+            <p class="mb-0" style="font-size:0.82rem;line-height:1.6;">{{ recipe.avoid_for }}</p>
+          </div>
+          {% endif %}
+
+          {% if not recipe.suitable_for and not recipe.avoid_for %}
+          <p style="color:#8fa896;font-size:0.85rem;">
+            Suitable for most people. Consult your doctor if you have specific health conditions.
+          </p>
+          {% endif %}
+
+          <div style="margin-top:1rem;background:#e8f5ee;border-radius:10px;padding:0.8rem;">
+            <div style="font-size:0.72rem;font-weight:700;color:#2d7a4f;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em;">
+              Quick Nutrition
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.78rem;color:#4a5e50;">
+              <span>🔥 {{ recipe.calories }} kcal</span>
+              <span>💪 {{ recipe.protein_g }}g protein</span>
+              <span>🌾 {{ recipe.carbs_g }}g carbs</span>
+              <span>🧈 {{ recipe.fat_g }}g fat</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ACTION BUTTONS -->
+    <div style="padding:1.5rem 2rem;background:white;border-top:1px solid #e8f5ee;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'dashboard' %}" class="nutri-btn-outline px-4">
+        <i class="bi bi-grid me-2"></i>Back to Dashboard
+      </a>
+      <a href="{% url 'saved_recipes' %}" class="nutri-btn-outline px-4">
+        <i class="bi bi-bookmark-heart me-2"></i>Saved Recipes
+      </a>
+      <a href="{% url 'diet_chart' %}" class="nutri-btn-primary px-4">
+        <i class="bi bi-calendar2-week me-2"></i>My Diet Chart
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+var sb = document.querySelector('.save-btn-detail');
+if (sb) {
+  sb.addEventListener('click', function() {
+    fetch('/recipe/' + this.dataset.id + '/save/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var icon = sb.querySelector('i');
+      if (data.saved) {
+        icon.className = 'bi bi-bookmark-heart-fill fs-3';
+        sb.classList.add('saved');
+      } else {
+        icon.className = 'bi bi-bookmark-heart fs-3';
+        sb.classList.remove('saved');
+      }
+    });
+  });
+}
+</script>
+{% endblock %}
+{% endblock %}

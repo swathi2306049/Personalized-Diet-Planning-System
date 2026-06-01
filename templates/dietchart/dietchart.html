@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}My Diet Chart — NutriSync{% endblock %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+
+  <div class="dietchart-header mb-4">
+    <div>
+      <h2 class="dietchart-title">📋 Your Personalized Diet Chart</h2>
+      <p class="dietchart-sub">7-Day plan based on your BMI, goal, and health profile</p>
+    </div>
+    <div class="dietchart-stats">
+      {% if chart.bmi %}<div class="stat-pill"><i class="bi bi-activity me-1"></i>BMI: <strong>{{ chart.bmi }}</strong></div>{% endif %}
+      <div class="stat-pill"><i class="bi bi-bullseye me-1"></i>Goal: <strong>{{ chart.category|title }}</strong></div>
+      <div class="stat-pill"><i class="bi bi-heart me-1"></i>Type: <strong>{{ user.get_diet_type_display }}</strong></div>
+    </div>
+  </div>
+
+  <div class="diet-category-alert {{ chart.category }} mb-4">
+    {% if chart.category == 'weight_loss' %}⚡ <strong>Weight Loss Plan:</strong> Calorie-deficit meals with high fiber and protein to help you lose weight steadily.
+    {% elif chart.category == 'weight_gain' %}💪 <strong>Weight Gain Plan:</strong> Calorie-surplus meals rich in protein and complex carbs for healthy weight gain.
+    {% else %}🥗 <strong>Balanced Diet Plan:</strong> Well-rounded nutritious meals to maintain ideal weight and support overall health.{% endif %}
+  </div>
+
+  <div class="weekly-chart">
+    {% for day in chart.weekly_chart %}
+    <div class="day-card">
+      <div class="day-header">
+        <span class="day-name">{{ day.day }}</span>
+        <span class="day-total"><i class="bi bi-fire me-1"></i>{{ day.total_calories }} kcal / day</span>
+      </div>
+      <div class="day-meals">
+        <div class="meal-block breakfast">
+          <div class="meal-time-label">🌅 Breakfast</div>
+          <div class="meal-name">{{ day.breakfast.name }}</div>
+          <div class="meal-macros">
+            <span>{{ day.breakfast.calories }} kcal</span>
+            <span>P:{{ day.breakfast.protein }}g</span>
+            <span>C:{{ day.breakfast.carbs }}g</span>
+            <span>F:{{ day.breakfast.fat }}g</span>
+          </div>
+        </div>
+        <div class="meal-block snack">
+          <div class="meal-time-label">🍎 Mid-Morning</div>
+          <div class="meal-name">Seasonal Fruit + Green Tea / Buttermilk</div>
+          <div class="meal-macros"><span>~100 kcal</span></div>
+        </div>
+        <div class="meal-block lunch">
+          <div class="meal-time-label">☀️ Lunch</div>
+          <div class="meal-name">{{ day.lunch.name }}</div>
+          <div class="meal-macros">
+            <span>{{ day.lunch.calories }} kcal</span>
+            <span>P:{{ day.lunch.protein }}g</span>
+            <span>C:{{ day.lunch.carbs }}g</span>
+            <span>F:{{ day.lunch.fat }}g</span>
+          </div>
+        </div>
+        <div class="meal-block snack">
+          <div class="meal-time-label">🌤️ Evening Snack</div>
+          <div class="meal-name">Roasted Nuts / Sprouts / Herbal Tea</div>
+          <div class="meal-macros"><span>~120 kcal</span></div>
+        </div>
+        <div class="meal-block dinner">
+          <div class="meal-time-label">🌙 Dinner</div>
+          <div class="meal-name">{{ day.dinner.name }}</div>
+          <div class="meal-macros">
+            <span>{{ day.dinner.calories }} kcal</span>
+            <span>P:{{ day.dinner.protein }}g</span>
+            <span>C:{{ day.dinner.carbs }}g</span>
+            <span>F:{{ day.dinner.fat }}g</span>
+          </div>
+        </div>
+        <div class="meal-block activity">
+          <div class="meal-time-label">🏃 Daily Activity</div>
+          <div class="meal-name">{{ day.activity }}</div>
+          <div class="meal-macros"><span>Stay consistent!</span></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="tips-section mt-5">
+    <h4 class="tips-title">💡 General Nutrition Tips</h4>
+    <div class="row g-3">
+      <div class="col-md-3 col-sm-6"><div class="tip-card">💧 Drink 8–10 glasses of water daily</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">🚫 Avoid processed foods & sugary drinks</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">🥗 Include 5 colours of vegetables daily</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">😴 Sleep 7–8 hours for better metabolism</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">⏰ Don't skip meals — eat at regular times</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">🧘 Manage stress with yoga or meditation</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">🍽️ Eat slowly and mindfully</div></div>
+      <div class="col-md-3 col-sm-6"><div class="tip-card">🌿 Prefer home-cooked meals always</div></div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4 mb-3 d-flex gap-3 justify-content-center">
+    <button onclick="window.print()" class="nutri-btn-primary px-5"><i class="bi bi-printer me-2"></i>Print Diet Chart</button>
+    <a href="{% url 'dashboard' %}" class="nutri-btn-outline px-5"><i class="bi bi-grid me-2"></i>Back to Dashboard</a>
+  </div>
+
+  <!-- Smart Alert based on category -->
+{% if chart.category == 'weight_loss' %}
+<div class="diet-category-alert weight_loss mb-4">
+  ⚡ <strong>Weight Loss Plan:</strong> Calorie-deficit meals with high fiber and protein to help you lose weight steadily and healthily.
+</div>
+
+{% elif chart.category == 'weight_loss_override' %}
+<div style="background:#fff3e0; border-left:4px solid #e65100; border-radius:14px; padding:1rem 1.5rem; margin-bottom:1.5rem; font-size:0.95rem; line-height:1.6; color:#bf360c;">
+  ⚠️ <strong>Important Health Notice:</strong>
+  Your current BMI of <strong>{{ chart.bmi }}</strong> indicates you are already
+  <strong>overweight</strong>. Even though you selected "Weight Gain" as your goal,
+  gaining more weight at this stage could increase your risk of diabetes, heart disease
+  and joint problems.<br><br>
+  We have automatically switched your plan to a
+  <strong>Weight Loss / Balanced Diet</strong> to protect your health.
+  We recommend consulting a doctor or nutritionist before attempting to gain more weight.
+</div>
+<div class="diet-category-alert weight_loss mb-4" style="margin-top:0.5rem;">
+  ⚡ <strong>Recommended Plan — Weight Loss:</strong> Calorie-controlled meals with high protein and fiber to bring your weight to a healthy range first.
+</div>
+
+{% elif chart.category == 'weight_gain' %}
+<div class="diet-category-alert weight_gain mb-4">
+  💪 <strong>Weight Gain Plan:</strong> Calorie-surplus meals rich in protein and complex carbs for healthy, steady weight gain.
+</div>
+
+{% elif chart.category == 'underweight_override' %}
+<div style="background:#e3f2fd; border-left:4px solid #1565c0; border-radius:14px; padding:1rem 1.5rem; margin-bottom:1.5rem; font-size:0.95rem; line-height:1.6; color:#0d47a1;">
+  ⚠️ <strong>Important Health Notice:</strong>
+  Your current BMI of <strong>{{ chart.bmi }}</strong> indicates you are
+  <strong>underweight</strong>. Losing more weight could be dangerous and lead to
+  malnutrition, anemia and bone loss.<br><br>
+  We have automatically switched your plan to a
+  <strong>Balanced Diet</strong> to help you reach a healthy weight safely.
+  Please consult a doctor before attempting further weight loss.
+</div>
+<div class="diet-category-alert balanced mb-4" style="margin-top:0.5rem;">
+  🥗 <strong>Recommended Plan — Balanced Diet:</strong> Nutritious meals to bring your weight to a healthy range safely.
+</div>
+
+{% else %}
+<div class="diet-category-alert balanced mb-4">
+  🥗 <strong>Balanced Diet Plan:</strong> Well-rounded nutritious meals to maintain your ideal weight and support overall health.
+</div>
+{% endif %}
+
+</div>
+{% endblock %}

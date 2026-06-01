@@ -1,0 +1,60 @@
+{% load static %}
+<div class="col-lg-3 col-md-4 col-sm-6 col-12">
+  <div class="recipe-card">
+    <div class="recipe-img-wrap">
+
+      <img src="{{ recipe.get_image }}"
+           alt="{{ recipe.title }}"
+           class="recipe-img"
+           loading="lazy"
+           onerror="this.src='{% static 'images/recipes/default.jpg' %}'"/>
+
+      <div class="recipe-badges">
+        <span class="badge-diet {{ recipe.diet_type }}">
+          {% if recipe.diet_type == 'veg' %}🌿 Veg
+          {% elif recipe.diet_type == 'non_veg' %}🍗 Non-Veg
+          {% elif recipe.diet_type == 'vegan' %}🌱 Vegan
+          {% else %}🥚 Egget{% endif %}
+        </span>
+        {% if recipe.season != 'all' %}
+        <span class="badge-season">
+          {% if recipe.season == 'summer' %}☀️
+          {% elif recipe.season == 'winter' %}❄️
+          {% elif recipe.season == 'monsoon' %}🌧️
+          {% else %}🌸{% endif %}
+          {{ recipe.get_season_display }}
+        </span>
+        {% endif %}
+      </div>
+
+      <button class="save-btn {% if recipe.id in saved_ids %}saved{% endif %}"
+              data-id="{{ recipe.pk }}"
+              title="Save Recipe">
+        <i class="bi {% if recipe.id in saved_ids %}bi-bookmark-heart-fill{% else %}bi-bookmark-heart{% endif %}"></i>
+      </button>
+    </div>
+
+    <div class="recipe-body">
+      <div class="mb-1">
+        <span class="health-tag-pill">{{ recipe.get_health_tags_display }}</span>
+      </div>
+      <h6 class="recipe-title">{{ recipe.title }}</h6>
+      <p class="recipe-desc">{{ recipe.description|truncatechars:75 }}</p>
+      <div class="recipe-meta-row">
+        <span class="meta-item"><i class="bi bi-clock"></i> {{ recipe.total_time }} min</span>
+        <span class="meta-item"><i class="bi bi-fire"></i> {{ recipe.calories }} kcal</span>
+        <span class="meta-item"><i class="bi bi-people"></i> {{ recipe.servings }}</span>
+      </div>
+      <div class="recipe-nutrients">
+        <span class="nutrient-pill">P: {{ recipe.protein_g }}g</span>
+        <span class="nutrient-pill">C: {{ recipe.carbs_g }}g</span>
+        <span class="nutrient-pill">F: {{ recipe.fat_g }}g</span>
+        <span class="nutrient-pill">Fi: {{ recipe.fiber_g }}g</span>
+      </div>
+      <a href="{% url 'recipe_detail' recipe.pk %}"
+         class="nutri-btn-outline w-100 mt-2 justify-content-center">
+        <i class="bi bi-eye me-1"></i> See Full Recipe
+      </a>
+    </div>
+  </div>
+</div>

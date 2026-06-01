@@ -1,0 +1,382 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NutriSync — {% block title %}Your Health, Your Plate{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+  <style>
+    :root{--green:#2d7a4f;--green-light:#4caf74;--green-pale:#e8f5ee;--cream:#faf8f3;--gold:#c9a84c;--gold-light:#f5e9c8;--dark:#1a2e1e;--mid:#4a5e50;--muted:#8fa896}
+    *{box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--dark);margin:0;padding:0}
+    h1,h2,h3,h4,h5,h6{font-family:'Playfair Display',serif}
+
+    /* NAVBAR */
+    .nutri-navbar{background:white;border-bottom:2px solid var(--green-pale);box-shadow:0 2px 12px rgba(45,122,79,0.08);padding:0.6rem 0}
+    .brand-icon{font-size:1.4rem}
+    .brand-name{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--green);text-decoration:none}
+    .nav-link{color:var(--mid)!important;font-weight:500;border-radius:8px;padding:0.4rem 0.9rem!important;transition:all 0.2s;text-decoration:none;display:inline-block}
+    .nav-link:hover,.nav-link.active{background:var(--green-pale);color:var(--green)!important}
+    .nav-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--green-light)}
+    .nav-avatar-ph{width:34px;height:34px;border-radius:50%;background:var(--green-pale);display:flex;align-items:center;justify-content:center;color:var(--green)}
+    .user-nav{display:flex!important;align-items:center;color:var(--dark)!important;text-decoration:none}
+
+    /* MESSAGES */
+    .msg-container{position:fixed;top:80px;right:20px;z-index:9999;max-width:380px}
+
+    /* BUTTONS */
+    .nutri-btn-primary{background:var(--green);color:white!important;border:none;border-radius:12px;font-weight:600;padding:0.65rem 1.5rem;transition:all 0.25s;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+    .nutri-btn-primary:hover{background:var(--green-light);transform:translateY(-1px);box-shadow:0 4px 20px rgba(45,122,79,0.3);color:white!important}
+    .nutri-btn-outline{background:transparent;color:var(--green)!important;border:1.5px solid var(--green);border-radius:12px;font-weight:600;padding:0.55rem 1.2rem;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center}
+    .nutri-btn-outline:hover{background:var(--green-pale)}
+    .nutri-btn-accent{background:var(--gold);color:white!important;border:none;border-radius:10px;font-weight:600;padding:0.5rem 1.2rem;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center}
+    .nutri-btn-accent:hover{background:#b8963e;color:white!important}
+
+    /* INPUTS */
+    .nutri-input{border:1.5px solid #dde8e0;border-radius:10px;padding:0.65rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.92rem;transition:all 0.2s;background:white;color:var(--dark);width:100%;outline:none}
+    .nutri-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(45,122,79,0.1)}
+    .form-label{font-weight:600;font-size:0.88rem;color:var(--mid);margin-bottom:0.4rem;display:block}
+
+    /* WELCOME BANNER */
+    .welcome-banner{background:linear-gradient(135deg,#1a5e35,#2d7a4f,#3a9460);border-radius:20px;padding:2rem 2.5rem;display:flex;justify-content:space-between;align-items:center;color:white;gap:1rem}
+    .welcome-banner h3{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:0.3rem}
+    .user-highlight{color:#f5e9c8}
+    .bmi-widget{text-align:center;background:rgba(255,255,255,0.15);border-radius:16px;padding:1rem 1.8rem;backdrop-filter:blur(8px);flex-shrink:0}
+    .bmi-number{font-size:2.5rem;font-weight:700;font-family:'Playfair Display',serif;line-height:1}
+    .bmi-label{font-size:0.82rem;opacity:0.85;margin-top:0.2rem}
+
+    /* SEASONAL */
+    .section-label{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--dark)}
+    .section-title-row{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .season-badge{background:var(--gold-light);color:var(--gold);border-radius:50px;padding:0.3rem 1rem;font-size:0.82rem;font-weight:700}
+    .condition-badge{background:#fde8e8;color:#c0392b;border-radius:50px;padding:0.3rem 1rem;font-size:0.82rem;font-weight:700}
+    .section-sub{color:var(--muted);font-size:0.9rem;margin-top:0.2rem}
+    .seasonal-scroll{display:flex;gap:1rem;overflow-x:auto;padding-bottom:1rem;scrollbar-width:thin;scrollbar-color:var(--green-light) transparent}
+    .seasonal-scroll::-webkit-scrollbar{height:4px}
+    .seasonal-scroll::-webkit-scrollbar-thumb{background:var(--green-light);border-radius:4px}
+    .seasonal-card{flex:0 0 185px;border-radius:16px;overflow:hidden;background:white;box-shadow:0 2px 12px rgba(45,122,79,0.08);transition:transform 0.25s,box-shadow 0.25s;cursor:pointer;border:0.5px solid #dde8e0}
+    .seasonal-card:hover{transform:translateY(-5px);box-shadow:0 8px 32px rgba(45,122,79,0.12)}
+    .seasonal-img-wrap{position:relative;height:135px;overflow:hidden}
+    .seasonal-img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
+    .seasonal-card:hover .seasonal-img{transform:scale(1.08)}
+    .seasonal-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--green-pale);font-size:3rem}
+    .seasonal-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.25s}
+    .seasonal-card:hover .seasonal-overlay{opacity:1}
+    .seasonal-info{padding:0.75rem}
+    .seasonal-title{font-size:0.84rem;font-weight:600;color:var(--dark);margin:0 0 0.2rem}
+
+    /* FILTER */
+    .filter-section{background:white;border-radius:16px;padding:1.2rem 1.5rem;box-shadow:0 2px 12px rgba(45,122,79,0.08);border:0.5px solid var(--green-pale)}
+    .filter-row{display:flex;gap:0.7rem;align-items:center;flex-wrap:wrap}
+    .search-wrap{position:relative;flex:1;min-width:200px}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);z-index:2}
+    .search-input{padding-left:2.4rem!important}
+    .nutri-filter{border:1.5px solid #dde8e0;border-radius:10px;padding:0.65rem 0.9rem;font-size:0.88rem;color:var(--dark);flex:0 0 170px;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;outline:none}
+    .nutri-filter:focus{border-color:var(--green)}
+    .active-filter-banner{background:var(--green-pale);border-left:4px solid var(--green);border-radius:8px;padding:0.7rem 1rem;color:var(--green);font-size:0.9rem;display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem}
+
+    /* RECIPE CARD */
+    .recipe-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(45,122,79,0.08);transition:all 0.25s;height:100%;display:flex;flex-direction:column;border:0.5px solid rgba(45,122,79,0.06)}
+    .recipe-card:hover{transform:translateY(-5px);box-shadow:0 8px 32px rgba(45,122,79,0.12)}
+    .recipe-img-wrap{position:relative;height:185px;overflow:hidden;flex-shrink:0}
+    .recipe-img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
+    .recipe-card:hover .recipe-img{transform:scale(1.06)}
+    .recipe-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--green-pale);font-size:4rem}
+    .recipe-badges{position:absolute;top:10px;left:10px;display:flex;gap:5px;flex-wrap:wrap}
+    .badge-diet{border-radius:50px;padding:0.22rem 0.7rem;font-size:0.72rem;font-weight:700;backdrop-filter:blur(4px)}
+    .badge-diet.veg{background:rgba(232,245,233,0.95);color:#2e7d32}
+    .badge-diet.non_veg{background:rgba(252,228,236,0.95);color:#c62828}
+    .badge-diet.vegan{background:rgba(224,242,241,0.95);color:#00695c}
+    .badge-diet.eggetarian{background:rgba(255,248,225,0.95);color:#f57f17}
+    .badge-season{background:rgba(245,233,200,0.95);color:var(--gold);border-radius:50px;padding:0.22rem 0.65rem;font-size:0.7rem;font-weight:700}
+    .save-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.92);border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.1);font-size:1rem}
+    .save-btn:hover,.save-btn.saved{color:#e53935;transform:scale(1.1)}
+    .recipe-body{padding:1rem;flex:1;display:flex;flex-direction:column}
+    .health-tag-pill{background:var(--green-pale);color:var(--green);border-radius:50px;padding:0.15rem 0.65rem;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.03em}
+    .recipe-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;color:var(--dark);margin:0.4rem 0 0.3rem;line-height:1.3}
+    .recipe-desc{font-size:0.82rem;color:var(--muted);margin-bottom:0.7rem;line-height:1.5;flex:1}
+    .recipe-meta-row{display:flex;gap:0.8rem;font-size:0.78rem;color:var(--mid);margin-bottom:0.6rem;flex-wrap:wrap}
+    .meta-item{display:flex;align-items:center;gap:3px}
+    .recipe-nutrients{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem}
+    .nutrient-pill{background:var(--green-pale);color:var(--green);border-radius:50px;padding:0.15rem 0.6rem;font-size:0.72rem;font-weight:700}
+
+    /* RECIPE DETAIL */
+    .recipe-detail-card{background:white;border-radius:24px;overflow:hidden;box-shadow:0 16px 48px rgba(45,122,79,0.16)}
+    .recipe-detail-img{width:100%;height:100%;min-height:400px;object-fit:cover}
+    .recipe-detail-img-ph{width:100%;min-height:400px;display:flex;align-items:center;justify-content:center;background:var(--green-pale);font-size:6rem}
+    .recipe-detail-title{font-family:'Playfair Display',serif;font-size:1.9rem;color:var(--dark)}
+    .recipe-detail-desc{color:var(--mid);line-height:1.7;font-size:0.95rem}
+    .badge-tag{background:var(--green-pale);color:var(--green);border-radius:50px;padding:0.3rem 0.9rem;font-size:0.8rem;font-weight:700;display:inline-block}
+    .badge-tag.health{background:#fce4ec;color:#c62828}
+    .badge-tag.season{background:var(--gold-light);color:var(--gold)}
+    .badge-tag.veg{background:#e8f5e9;color:#2e7d32}
+    .badge-tag.non_veg{background:#fce4ec;color:#c62828}
+    .badge-tag.vegan{background:#e0f2f1;color:#00695c}
+    .recipe-stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;background:var(--cream);border-radius:12px;padding:1rem;text-align:center}
+    .stat-block i{font-size:1.2rem;color:var(--green);display:block;margin-bottom:0.3rem}
+    .stat-val{font-size:0.92rem;font-weight:700;color:var(--dark)}
+    .stat-lbl{font-size:0.72rem;color:var(--muted)}
+    .nutrition-card{background:var(--green-pale);border-radius:14px;padding:1.2rem}
+    .nutrition-title{font-weight:700;color:var(--green);margin-bottom:0.8rem;font-size:0.92rem}
+    .nutrition-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.8rem;text-align:center}
+    .nut-val{display:block;font-size:1.3rem;font-weight:700;color:var(--green);font-family:'Playfair Display',serif}
+    .nut-lbl{font-size:0.72rem;color:var(--muted)}
+    .detail-block{background:var(--cream);border-radius:14px;padding:1.3rem;height:100%}
+    .detail-block-title{font-weight:700;font-size:1rem;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+    .ingredient-list{list-style:none;padding:0;margin:0}
+    .ingredient-list li{padding:0.4rem 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:0.88rem;color:var(--mid);display:flex;gap:0.5rem}
+    .ingredient-list li::before{content:'•';color:var(--green);font-weight:bold;flex-shrink:0}
+    .method-list{padding-left:1.3rem;margin:0}
+    .method-list li{padding:0.45rem 0;font-size:0.88rem;color:var(--mid);line-height:1.6}
+    .consume-section{padding:0.85rem;border-radius:10px;font-size:0.85rem;margin-bottom:0.8rem}
+    .consume-section.suitable{background:#e8f5e9;color:#2e7d32}
+    .consume-section.avoid{background:#fff3e0;color:#e65100}
+    .save-btn-detail{background:none;border:none;cursor:pointer;color:var(--muted);transition:all 0.2s;padding:0.3rem;flex-shrink:0}
+    .save-btn-detail:hover,.save-btn-detail.saved{color:#e53935;transform:scale(1.1)}
+
+    /* PROFILE */
+    .profile-header{background:linear-gradient(135deg,#1a5e35,#2d7a4f);border-radius:20px;padding:2rem 2.5rem}
+    .profile-hero{display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .profile-avatar{width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid rgba(255,255,255,0.5);flex-shrink:0}
+    .profile-avatar-default{width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;flex-shrink:0}
+    .profile-avatar-wrap{position:relative;flex-shrink:0}
+    .profile-avatar-badge{position:absolute;bottom:2px;right:2px;background:var(--gold);color:white;border-radius:50px;padding:0.18rem 0.55rem;font-size:0.68rem;font-weight:700;white-space:nowrap}
+    .profile-name{font-family:'Playfair Display',serif;font-size:1.9rem;color:white;margin-bottom:0.3rem}
+    .profile-meta{color:rgba(255,255,255,0.75);font-size:0.9rem}
+    .bmi-badge{display:inline-block;border-radius:50px;padding:0.3rem 1rem;font-size:0.82rem;font-weight:700;margin-top:0.4rem}
+    .bmi-badge.bmi-normal{background:#e8f5e9;color:#2e7d32}
+    .bmi-badge.bmi-overweight{background:#fff3e0;color:#e65100}
+    .bmi-badge.bmi-underweight{background:#e3f2fd;color:#1565c0}
+    .bmi-badge.bmi-obese{background:#fce4ec;color:#c62828}
+    .profile-incomplete-alert{background:rgba(255,152,0,0.2);color:#fff;border-radius:8px;padding:0.5rem 1rem;font-size:0.85rem;display:inline-block;margin-top:0.5rem}
+    .profile-complete-badge{background:rgba(255,255,255,0.2);color:white;border-radius:8px;padding:0.4rem 1rem;font-size:0.85rem;display:inline-block;margin-top:0.5rem}
+    .profile-section-card{background:white;border-radius:16px;padding:1.5rem;box-shadow:0 2px 12px rgba(45,122,79,0.08);border:0.5px solid rgba(45,122,79,0.06);height:100%}
+    .section-header{display:flex;align-items:flex-start;gap:0.8rem;margin-bottom:0.5rem}
+    .section-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem}
+    .section-header h5{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--dark);margin:0}
+    .gym-section{border:2px dashed #a8d5b5;background:#f8fdf9}
+    .gym-toggle-wrap{background:var(--green-pale);border-radius:10px;padding:0.8rem 1rem}
+    .bmi-display-card{background:var(--green-pale);border-radius:12px;padding:1rem;margin-top:0.5rem}
+    .bmi-display-row{display:flex;gap:1rem;justify-content:space-around}
+    .bmi-display-item{text-align:center}
+    .bmi-display-val{display:block;font-size:1.4rem;font-weight:700;color:var(--green);font-family:'Playfair Display',serif}
+    .bmi-display-lbl{font-size:0.72rem;color:var(--muted)}
+
+    /* DIET CHART */
+    .dietchart-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem}
+    .dietchart-title{font-family:'Playfair Display',serif;font-size:2rem;color:var(--dark)}
+    .dietchart-sub{color:var(--muted);margin:0}
+    .dietchart-stats{display:flex;gap:0.8rem;flex-wrap:wrap}
+    .stat-pill{background:white;border:1.5px solid var(--green-pale);border-radius:50px;padding:0.4rem 1rem;font-size:0.85rem;color:var(--mid);display:flex;align-items:center;gap:0.3rem}
+    .diet-category-alert{border-radius:14px;padding:1rem 1.5rem;font-size:0.95rem;line-height:1.6}
+    .diet-category-alert.weight_loss{background:#e3f2fd;color:#1565c0;border-left:4px solid #1565c0}
+    .diet-category-alert.weight_gain{background:#e8f5e9;color:#2e7d32;border-left:4px solid #2e7d32}
+    .diet-category-alert.balanced{background:var(--green-pale);color:var(--green);border-left:4px solid var(--green)}
+    .weekly-chart{display:flex;flex-direction:column;gap:1.2rem}
+    .day-card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(45,122,79,0.08);overflow:hidden;border:0.5px solid rgba(45,122,79,0.06)}
+    .day-header{background:linear-gradient(90deg,#1a5e35,#2d7a4f);color:white;padding:0.9rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+    .day-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700}
+    .day-total{background:rgba(255,255,255,0.2);border-radius:50px;padding:0.25rem 0.9rem;font-size:0.82rem}
+    .day-meals{display:grid;grid-template-columns:repeat(6,1fr)}
+    .meal-block{padding:1rem 1.1rem;border-right:1px solid rgba(45,122,79,0.08)}
+    .meal-block:last-child{border-right:none}
+    .meal-block.breakfast{background:#fffde7}
+    .meal-block.snack{background:#f8f0ff}
+    .meal-block.lunch{background:#f0faf4}
+    .meal-block.dinner{background:#e8f4fd}
+    .meal-block.activity{background:#fff0f0}
+    .meal-time-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:0.4rem}
+    .meal-name{font-size:0.85rem;font-weight:600;color:var(--dark);margin-bottom:0.5rem;line-height:1.4}
+    .meal-macros{display:flex;flex-wrap:wrap;gap:0.3rem}
+    .meal-macros span{background:rgba(0,0,0,0.06);border-radius:50px;padding:0.1rem 0.5rem;font-size:0.7rem;color:var(--mid)}
+
+    /* TIPS */
+    .tips-title{font-family:'Playfair Display',serif;color:var(--dark);margin-bottom:1rem}
+    .tip-card{background:white;border-radius:12px;padding:1rem 1.2rem;text-align:center;font-size:0.88rem;font-weight:500;color:var(--mid);box-shadow:0 2px 12px rgba(45,122,79,0.08);height:100%;border-left:3px solid var(--green-light);display:flex;align-items:center;justify-content:center}
+
+    /* EMPTY STATE */
+    .empty-state{padding:3rem 1rem}
+    .empty-icon{font-size:4rem}
+
+    /* FOOTER */
+    .nutri-footer{background:#1a2e1e;color:var(--muted)}
+    .footer-text{color:rgba(255,255,255,0.5);font-size:0.9rem;margin-bottom:0.3rem}
+
+    /* RESPONSIVE */
+    @media(max-width:992px){.day-meals{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:768px){.welcome-banner{flex-direction:column;text-align:center}.day-meals{grid-template-columns:repeat(2,1fr)}.filter-row{flex-direction:column;align-items:stretch}.nutri-filter{flex:1}.profile-hero{flex-direction:column;text-align:center}.dietchart-header{flex-direction:column}.recipe-stats-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:480px){.day-meals{grid-template-columns:1fr}}
+    @media print{.nutri-navbar,.nutri-footer,.btn,.msg-container{display:none!important}.day-card{break-inside:avoid}}
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg nutri-navbar sticky-top">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+      <span class="brand-icon">🌿</span>
+      <span class="brand-name">NutriSync</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto ms-4 gap-1">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+            <i class="bi bi-grid-fill me-1"></i> Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'diet_chart' %}active{% endif %}" href="{% url 'diet_chart' %}">
+            <i class="bi bi-calendar2-week me-1"></i> Diet Chart
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'saved_recipes' %}active{% endif %}" href="{% url 'saved_recipes' %}">
+            <i class="bi bi-bookmark-heart me-1"></i> Saved
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto align-items-center gap-2">
+        <li class="nav-item">
+          <a class="user-nav nav-link" href="{% url 'profile' %}">
+            {% if user.profile_photo %}
+              <img src="{{ user.profile_photo.url }}" class="nav-avatar" alt="Profile"/>
+            {% else %}
+              <div class="nav-avatar-ph"><i class="bi bi-person-fill"></i></div>
+            {% endif %}
+            <span class="ms-2">{{ user.full_name|default:user.username }}</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+            <i class="bi bi-box-arrow-right me-1"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+{% endif %}
+
+{% if messages %}
+<div class="msg-container">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags }} alert-dismissible fade show shadow" role="alert">
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+<footer style="background:linear-gradient(135deg,#0d2918,#1a2e1e);color:white;margin-top:4rem;">
+
+  <!-- Main Content -->
+  <div style="max-width:1100px;margin:0 auto;padding:2.5rem 2rem;">
+    <div style="display:grid;grid-template-columns:1.8fr 1fr 1fr;gap:2.5rem;">
+
+      <!-- Brand -->
+      <div>
+        <div style="display:flex;align-items:flex-start;gap:0.6rem;margin-bottom:0.8rem;">
+          <span style="font-size:1.8rem;">🌿</span>
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:white;">NutriSync</div>
+            <div style="font-size:0.68rem;color:#4caf74;letter-spacing:0.03em;margin-top:2px;font-weight:600;">✦ Smart Recipe Suggestions & Personalized Diet Chart Generator ✦</div>
+          </div>
+        </div>
+        <p style="color:rgba(255,255,255,0.6);font-size:0.82rem;line-height:1.8;margin-bottom:1rem;">
+          NutriSync suggests healthy recipes based on your health condition and generates a personalized 7-day diet chart using your BMI and lifestyle. Eat smart. Live healthy.
+        </p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <span style="background:rgba(45,122,79,0.35);color:#a8d5b5;border:1px solid rgba(76,175,116,0.25);border-radius:50px;padding:0.18rem 0.65rem;font-size:0.68rem;font-weight:600;">🥗 Recipe Suggestions</span>
+          <span style="background:rgba(45,122,79,0.35);color:#a8d5b5;border:1px solid rgba(76,175,116,0.25);border-radius:50px;padding:0.18rem 0.65rem;font-size:0.68rem;font-weight:600;">📋 Diet Chart Generator</span>
+          <span style="background:rgba(45,122,79,0.35);color:#a8d5b5;border:1px solid rgba(76,175,116,0.25);border-radius:50px;padding:0.18rem 0.65rem;font-size:0.68rem;font-weight:600;">⚖️ BMI Based Planning</span>
+          <span style="background:rgba(45,122,79,0.35);color:#a8d5b5;border:1px solid rgba(76,175,116,0.25);border-radius:50px;padding:0.18rem 0.65rem;font-size:0.68rem;font-weight:600;">❤️ Condition-Based Diet</span>
+        </div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">📧 support@nutrisync.in &nbsp;|&nbsp; 📞 +91 98765 43210</div>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h6 style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:700;color:white;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid #2d7a4f;">Quick Links</h6>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.55rem;">
+          <li><a href="{% url 'dashboard' %}" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🏠 Dashboard</a></li>
+          <li><a href="{% url 'diet_chart' %}" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">📋 My Diet Chart</a></li>
+          <li><a href="{% url 'profile' %}" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">👤 My Profile</a></li>
+          <li><a href="{% url 'saved_recipes' %}" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🔖 Saved Recipes</a></li>
+          <li><a href="{% url 'dashboard' %}?meal=breakfast" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🌅 Breakfast Recipes</a></li>
+          <li><a href="{% url 'dashboard' %}?meal=dinner" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🌙 Dinner Recipes</a></li>
+          <li><a href="{% url 'dashboard' %}?meal=drink" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🥤 Healthy Drinks</a></li>
+        </ul>
+      </div>
+
+      <!-- Diet by Condition -->
+      <div>
+        <h6 style="font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:700;color:white;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:2px solid #2d7a4f;">Diet by Condition</h6>
+        <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.55rem;">
+          <li><a href="{% url 'dashboard' %}?health=diabetes" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🩸 Diabetes Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=hypertension" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">💗 BP Friendly Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=thyroid" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🦋 Thyroid Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=pcod" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🌸 PCOS / PCOD Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=heart" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">❤️ Heart Healthy Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=anemia" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">🩺 Anemia Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=weight_loss" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">⚡ Weight Loss Diet</a></li>
+          <li><a href="{% url 'dashboard' %}?health=gym" style="color:rgba(255,255,255,0.62);text-decoration:none;font-size:0.82rem;display:flex;align-items:center;gap:0.5rem;" onmouseover="this.style.color='#4caf74'" onmouseout="this.style.color='rgba(255,255,255,0.62)'">💪 Gym & Fitness Diet</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div style="border-top:1px solid rgba(255,255,255,0.08);padding:1rem 2rem;">
+    <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+      <div style="font-size:0.73rem;color:rgba(255,255,255,0.35);">
+        © 2025 <span style="color:#4caf74;font-weight:600;">NutriSync</span> — Recipe Suggestions & Diet Chart Generator. Made with ❤️ for a healthier India.
+      </div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.3);">
+        ⚕️ Not a substitute for medical advice. Consult your doctor for health conditions.
+      </div>
+    </div>
+  </div>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    document.querySelectorAll('.alert').forEach(function(el){
+      try{bootstrap.Alert.getOrCreateInstance(el).close();}catch(e){}
+    });
+  },4000);
+  var gc=document.getElementById('gymFreak');
+  var gf=document.getElementById('gymFields');
+  if(gc&&gf){
+    gf.style.display=gc.checked?'block':'none';
+    gc.addEventListener('change',function(){gf.style.display=this.checked?'block':'none';});
+  }
+});
+function getCookie(name){
+  let c=null;
+  if(document.cookie&&document.cookie!==''){
+    document.cookie.split(';').forEach(function(ck){
+      ck=ck.trim();
+      if(ck.substring(0,name.length+1)===(name+'=')){c=decodeURIComponent(ck.substring(name.length+1));}
+    });
+  }
+  return c;
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

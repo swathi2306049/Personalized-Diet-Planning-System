@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — NutriSync{% endblock %}
+{% block content %}
+<div class="container-fluid py-4 px-4">
+
+  <div class="profile-header mb-4">
+    <div class="profile-hero">
+      <div class="profile-avatar-wrap">
+        {% if user.profile_photo %}
+          <img src="{{ user.profile_photo.url }}" class="profile-avatar" alt="Profile"/>
+        {% else %}
+          <div class="profile-avatar-default"><i class="bi bi-person-fill"></i></div>
+        {% endif %}
+        {% if user.bmi %}<div class="profile-avatar-badge">BMI {{ user.bmi }}</div>{% endif %}
+      </div>
+      <div class="profile-hero-info">
+        <h2 class="profile-name">{{ user.full_name|default:user.username }}</h2>
+        <p class="profile-meta">
+          <i class="bi bi-at"></i> {{ user.username }} &nbsp;&bull;&nbsp;
+          <i class="bi bi-envelope"></i> {{ user.email }}
+        </p>
+        {% if user.bmi %}
+        <span class="bmi-badge bmi-{{ user.bmi_category|lower }}">BMI {{ user.bmi }} — {{ user.bmi_category }}</span>
+        {% endif %}
+        {% if not user.profile_completed %}
+        <div class="profile-incomplete-alert"><i class="bi bi-exclamation-circle me-1"></i> Complete your profile to unlock your personalized diet chart!</div>
+        {% else %}
+        <div class="profile-complete-badge"><i class="bi bi-check-circle-fill me-1"></i> Profile Complete</div>
+        {% endif %}
+      </div>
+      <div class="ms-auto">
+        <a href="{% url 'diet_chart' %}" class="nutri-btn-accent"><i class="bi bi-calendar2-week me-1"></i> View Diet Chart</a>
+      </div>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row g-4">
+
+      <!-- Personal Info -->
+      <div class="col-12">
+        <div class="profile-section-card">
+          <div class="section-header">
+            <span class="section-icon">👤</span>
+            <div><h5>Personal Information</h5><small class="text-muted">Your basic details</small></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-4">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" value="{{ user.full_name }}" class="nutri-input" placeholder="Your full name"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Date of Birth</label>
+              <input type="date" name="date_of_birth" value="{{ user.date_of_birth|date:'Y-m-d' }}" class="nutri-input"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Gender</label>
+              <select name="gender" class="nutri-input">
+                <option value="">Select Gender</option>
+                <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
+                <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female</option>
+                <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Phone Number</label>
+              <input type="text" name="phone" value="{{ user.phone }}" class="nutri-input" placeholder="+91 XXXXX XXXXX"/>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Profile Photo</label>
+              <input type="file" name="profile_photo" class="nutri-input" accept="image/*"/>
+              {% if user.profile_photo %}<small class="text-muted d-block mt-1">Current photo uploaded ✓</small>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Physical Details -->
+      <div class="col-md-6">
+        <div class="profile-section-card">
+          <div class="section-header">
+            <span class="section-icon">📏</span>
+            <div><h5>Physical Details</h5><small class="text-muted">Used for BMI calculation</small></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-6">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" name="height_cm" value="{{ user.height_cm }}" class="nutri-input" placeholder="e.g. 165"/>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Current Weight (kg)</label>
+              <input type="number" name="weight_kg" value="{{ user.weight_kg }}" class="nutri-input" placeholder="e.g. 65" step="0.1"/>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Target Weight (kg)</label>
+              <input type="number" name="target_weight_kg" value="{{ user.target_weight_kg }}" class="nutri-input" step="0.1"/>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Diet Preference</label>
+              <select name="diet_type" class="nutri-input">
+                <option value="veg" {% if user.diet_type == 'veg' %}selected{% endif %}>🌿 Vegetarian</option>
+                <option value="non_veg" {% if user.diet_type == 'non_veg' %}selected{% endif %}>🍗 Non-Vegetarian</option>
+                <option value="vegan" {% if user.diet_type == 'vegan' %}selected{% endif %}>🌱 Vegan</option>
+                <option value="eggetarian" {% if user.diet_type == 'eggetarian' %}selected{% endif %}>🥚 Eggetarian</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Food Allergies</label>
+              <textarea name="allergies" class="nutri-input" rows="2" placeholder="e.g. peanuts, lactose...">{{ user.allergies }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Condition -->
+      <div class="col-md-6">
+        <div class="profile-section-card">
+          <div class="section-header">
+            <span class="section-icon">❤️</span>
+            <div><h5>Health Condition & Goal</h5><small class="text-muted">For personalized suggestions</small></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-12">
+              <label class="form-label">Primary Health Condition</label>
+              <select name="health_condition" class="nutri-input">
+                <option value="none" {% if user.health_condition == 'none' %}selected{% endif %}>None / Healthy</option>
+                <option value="diabetes" {% if user.health_condition == 'diabetes' %}selected{% endif %}>🩸 Diabetes</option>
+                <option value="hypertension" {% if user.health_condition == 'hypertension' %}selected{% endif %}>💗 High Blood Pressure</option>
+                <option value="thyroid" {% if user.health_condition == 'thyroid' %}selected{% endif %}>🦋 Thyroid</option>
+                <option value="pcod" {% if user.health_condition == 'pcod' %}selected{% endif %}>🌸 PCOD</option>
+                <option value="pcos" {% if user.health_condition == 'pcos' %}selected{% endif %}>🌸 PCOS</option>
+                <option value="cholesterol" {% if user.health_condition == 'cholesterol' %}selected{% endif %}>🫀 High Cholesterol</option>
+                <option value="heart" {% if user.health_condition == 'heart' %}selected{% endif %}>❤️ Heart Condition</option>
+                <option value="anemia" {% if user.health_condition == 'anemia' %}selected{% endif %}>🩺 Anemia</option>
+                <option value="obesity" {% if user.health_condition == 'obesity' %}selected{% endif %}>⚖️ Obesity</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Other Conditions / Notes</label>
+              <input type="text" name="other_health_condition" value="{{ user.other_health_condition }}" class="nutri-input" placeholder="Any other health details..."/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Your Primary Goal</label>
+              <select name="goal" class="nutri-input">
+                <option value="general" {% if user.goal == 'general' %}selected{% endif %}>🥗 General Healthy Eating</option>
+                <option value="weight_loss" {% if user.goal == 'weight_loss' %}selected{% endif %}>⚡ Weight Loss</option>
+                <option value="weight_gain" {% if user.goal == 'weight_gain' %}selected{% endif %}>💪 Weight Gain</option>
+                <option value="maintain" {% if user.goal == 'maintain' %}selected{% endif %}>⚖️ Maintain Weight</option>
+                <option value="muscle_gain" {% if user.goal == 'muscle_gain' %}selected{% endif %}>🏋️ Muscle Gain / Gym</option>
+                <option value="health_condition" {% if user.goal == 'health_condition' %}selected{% endif %}>❤️ Manage Health Condition</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lifestyle -->
+      <div class="col-md-6">
+        <div class="profile-section-card">
+          <div class="section-header">
+            <span class="section-icon">🌙</span>
+            <div><h5>Lifestyle & Daily Routine</h5><small class="text-muted">Meal timing planning</small></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-6">
+              <label class="form-label">Wake Up Time</label>
+              <input type="time" name="wake_up_time" value="{{ user.wake_up_time|time:'H:i' }}" class="nutri-input"/>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Sleep Time</label>
+              <input type="time" name="sleep_time" value="{{ user.sleep_time|time:'H:i' }}" class="nutri-input"/>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Meals Per Day</label>
+              <select name="meals_per_day" class="nutri-input">
+                <option value="2" {% if user.meals_per_day == 2 %}selected{% endif %}>2 meals</option>
+                <option value="3" {% if user.meals_per_day == 3 %}selected{% endif %}>3 meals</option>
+                <option value="4" {% if user.meals_per_day == 4 %}selected{% endif %}>4 meals</option>
+                <option value="5" {% if user.meals_per_day == 5 %}selected{% endif %}>5 meals</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Water Intake (L/day)</label>
+              <input type="number" name="water_intake_liters" value="{{ user.water_intake_liters }}" class="nutri-input" step="0.5" placeholder="e.g. 2.5"/>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Physical Activity Level</label>
+              <select name="activity_level" class="nutri-input">
+                <option value="sedentary" {% if user.activity_level == 'sedentary' %}selected{% endif %}>🪑 Sedentary</option>
+                <option value="light" {% if user.activity_level == 'light' %}selected{% endif %}>🚶 Lightly Active (1-3 days/week)</option>
+                <option value="moderate" {% if user.activity_level == 'moderate' %}selected{% endif %}>🏃 Moderately Active (3-5 days/week)</option>
+                <option value="very_active" {% if user.activity_level == 'very_active' %}selected{% endif %}>⚡ Very Active (6-7 days/week)</option>
+                <option value="extra_active" {% if user.activity_level == 'extra_active' %}selected{% endif %}>🏆 Extra Active (Athlete)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gym Section -->
+      <div class="col-md-6">
+        <div class="profile-section-card gym-section">
+          <div class="section-header">
+            <span class="section-icon">💪</span>
+            <div><h5>Gym & Fitness</h5><small class="text-muted">Fill if you work out regularly</small></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-12">
+              <div class="gym-toggle-wrap">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="is_gym_freak" id="gymFreak" {% if user.is_gym_freak %}checked{% endif %} style="width:2.5em;height:1.3em;cursor:pointer;accent-color:#2d7a4f"/>
+                  <label class="form-check-label ms-2" for="gymFreak"><strong>I work out regularly / Gym Freak</strong></label>
+                </div>
+              </div>
+            </div>
+            <div id="gymFields">
+              <div class="row g-3">
+                <div class="col-6">
+                  <label class="form-label">Gym Days / Week</label>
+                  <select name="gym_days_per_week" class="nutri-input">
+                    <option value="">Select</option>
+                    {% for i in "1234567" %}
+                    <option value="{{ i }}" {% if user.gym_days_per_week == i|add:0 %}selected{% endif %}>{{ i }} day{{ i|pluralize }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Preferred Workout</label>
+                  <input type="text" name="preferred_workout" value="{{ user.preferred_workout }}" class="nutri-input" placeholder="e.g. Strength, Cardio"/>
+                </div>
+              </div>
+            </div>
+            {% if user.bmi %}
+            <div class="col-12">
+              <div class="bmi-display-card">
+                <div class="bmi-display-row">
+                  <div class="bmi-display-item">
+                    <span class="bmi-display-val">{{ user.bmi }}</span>
+                    <span class="bmi-display-lbl">Your BMI</span>
+                  </div>
+                  <div class="bmi-display-item">
+                    <span class="bmi-display-val">{{ user.bmi_category }}</span>
+                    <span class="bmi-display-lbl">Category</span>
+                  </div>
+                  {% if user.age %}
+                  <div class="bmi-display-item">
+                    <span class="bmi-display-val">{{ user.age }}</span>
+                    <span class="bmi-display-lbl">Age</span>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-5 mb-3">
+      <button type="submit" class="nutri-btn-primary btn-lg px-5 py-3">
+        <i class="bi bi-check-circle me-2"></i>
+        {% if user.profile_completed %}Update Profile{% else %}Complete Profile & Go to Dashboard{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
