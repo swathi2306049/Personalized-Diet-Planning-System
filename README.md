@@ -61,8 +61,4 @@ The system provides filtering options for users based on conditions such as:
 5. Suitable recipes and diet recommendations are displayed.
 6. Users can save recipes for future reference.
 7. Administrators can manage and approve recipes through the admin interface.
-
-
-
-
-⭐ If you find this project useful, consider giving the repository a star!
+   
