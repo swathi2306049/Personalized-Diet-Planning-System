@@ -3,6 +3,7 @@
 **Personalized Diet Planning System** is a web-based application developed using **HTML, CSS, JavaScript, Django, and PostgreSQL** to provide personalized diet plans and recipe recommendations based on a user's **dietary preferences, available ingredients, health conditions, and nutrition goals**.
 
 The system helps users discover suitable recipes and create personalized diet plans while making it easier to manage their food preferences and nutritional requirements.
+<img width="1208" height="3648" alt="127 0 0 1_8000_dietchart_" src="https://github.com/user-attachments/assets/f433be5c-f162-42e9-a7bb-3d4c6ec8fce5" />
 
 ## ✨ Features
 
